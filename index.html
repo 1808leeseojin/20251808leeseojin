@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>To‑Do List</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #e8f5e9;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #2e7d32;
+    }
+
+    #count {
+      text-align: center;
+      font-size: 18px;
+      color: #1b5e20;
+      margin-bottom: 10px;
+    }
+
+    .container {
+      max-width: 450px;
+      margin: auto;
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      border: 2px solid #a5d6a7;
+    }
+
+    input {
+      width: 70%;
+      padding: 10px;
+      font-size: 16px;
+      border: 2px solid #66bb6a;
+      border-radius: 5px;
+    }
+
+    button {
+      padding: 10px 15px;
+      font-size: 16px;
+      background: #43a047;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #2e7d32;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin-top: 20px;
+    }
+
+    li {
+      padding: 12px;
+      background: #c8e6c9;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-left: 5px solid #2e7d32;
+      transition: 0.3s;
+    }
+
+    /* 왼쪽: 나무 + 체크박스 */
+    .left-side {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 70px; /* 고정 폭 → 체크박스가 텍스트를 밀지 않음 */
+    }
+
+    .tree-icon {
+      font-size: 20px;
+    }
+
+    /* 오른쪽: 텍스트 + 삭제 */
+    .right-side {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex: 1;
+      gap: 10px;
+    }
+
+    .todo-text {
+      flex: 1;
+      word-break: break-all;
+      font-size: 16px;
+    }
+
+    /* 완료 스타일 */
+    .completed .todo-text {
+      color: #666;
+      text-decoration: line-through;
+    }
+
+    .completed {
+      background: #eeeeee !important;
+      border-left: 5px solid #777 !important;
+    }
+
+    .delete-btn {
+      color: #c62828;
+      cursor: pointer;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>To‑Do List</h1>
+  <div id="count">총 0개</div>
+
+  <div class="container">
+    <input id="todo-input" type="text" placeholder="할 일을 입력하세요">
+    <button onclick="addTodo()">추가</button>
+
+    <ul id="todo-list"></ul>
+  </div>
+
+  <script>
+    let todos = [];
+
+    window.onload = function () {
+      const saved = localStorage.getItem("todos");
+      if (saved) {
+        todos = JSON.parse(saved);
+      }
+      renderTodos();
+    };
+
+    function renderTodos() {
+      const list = document.getElementById("todo-list");
+      list.innerHTML = "";
+
+      todos.forEach((item, index) => {
+        const li = document.createElement("li");
+        if (item.completed) li.classList.add("completed");
+
+        li.innerHTML = `
+          <div class="left-side">
+            <span class="tree-icon">🌲</span>
+            <input 
+              type="checkbox" 
+              ${item.completed ? "checked" : ""} 
+              onclick="toggleComplete(${index})">
+          </div>
+
+          <div class="right-side">
+            <span class="todo-text">${item.text}</span>
+            <span class="delete-btn" onclick="deleteTodo(${index})">삭제</span>
+          </div>
+        `;
+
+        list.appendChild(li);
+      });
+
+      updateCount();
+    }
+
+    function addTodo() {
+      const input = document.getElementById("todo-input");
+      const text = input.value.trim();
+
+      if (text === "") {
+        alert("내용을 입력하세요!");
+        return;
+      }
+
+      todos.push({
+        text: text,
+        completed: false
+      });
+
+      localStorage.setItem("todos", JSON.stringify(todos));
+
+      input.value = "";
+      renderTodos();
+    }
+
+    function toggleComplete(index) {
+      todos[index].completed = !todos[index].completed;
+      localStorage.setItem("todos", JSON.stringify(todos));
+      renderTodos();
+    }
+
+    function deleteTodo(index) {
+      todos.splice(index, 1);
+      localStorage.setItem("todos", JSON.stringify(todos));
+      renderTodos();
+    }
+
+    function updateCount() {
+      document.getElementById("count").innerText = `총 ${todos.length}개`;
+    }
+  </script>
+
+</body>
+</html>
+
